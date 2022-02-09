@@ -5,7 +5,7 @@ namespace IdentityNetCore.Controllers
 {
     public class AdminController : Controller
     {
-        [Authorize(Roles ="admin")]
+        [Authorize(policy:"DepAdmin")]
         public IActionResult Index()
         {
             return View();

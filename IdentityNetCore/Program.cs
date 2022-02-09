@@ -26,6 +26,14 @@ builder.Services.ConfigureApplicationCookie(o =>
     o.ExpireTimeSpan = TimeSpan.FromMinutes(60);
 });
 
+builder.Services.AddAuthorization(option =>
+{
+    option.AddPolicy("DepAdmin", p =>
+    {
+        p.RequireClaim("Department", "IT").RequireRole("admin");
+    });
+});
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
