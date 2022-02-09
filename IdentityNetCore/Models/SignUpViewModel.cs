@@ -12,7 +12,10 @@ namespace IdentityNetCore.Models
         [DataType(DataType.Password,ErrorMessage ="Missing Password")]
         public string Password { get; set; }
 
-
+        [Required]
         public string Role { get; set; }
+
+        [Required]
+        public string Department { get; set; }
     }
 }

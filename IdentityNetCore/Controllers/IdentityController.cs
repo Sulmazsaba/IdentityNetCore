@@ -1,6 +1,7 @@
 ﻿using IdentityNetCore.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace IdentityNetCore.Controllers
 {
@@ -58,6 +59,8 @@ namespace IdentityNetCore.Controllers
 
                     if (result.Succeeded)
                     {
+                        await _userManager.AddClaimAsync(user, new Claim("Department", model.Department));
+
                         await _userManager.AddToRoleAsync(user,model.Role);
 
                         return RedirectToAction("Signin");
