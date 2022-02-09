@@ -23,6 +23,7 @@ builder.Services.ConfigureApplicationCookie(o =>
 {
     o.LoginPath = "/Identity/Signin";
     o.AccessDeniedPath = "/Identity/AccessDenied";
+    o.ExpireTimeSpan = TimeSpan.FromMinutes(10);
 });
 
 builder.Services.AddControllersWithViews();
