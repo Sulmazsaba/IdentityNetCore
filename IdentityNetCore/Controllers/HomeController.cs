@@ -16,10 +16,17 @@ namespace IdentityNetCore.Controllers
 
         public IActionResult Index()
         {
+            var role = this.User;
             return View();
         }
 
-        [Authorize]
+        [Authorize(Roles ="member")]
+        public IActionResult Member()
+        {
+            return View();
+        }
+
+
         public IActionResult Privacy()
         {
             return View();

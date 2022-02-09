@@ -6,3 +6,6 @@
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>
+
+@Html.ActionLink("Go To Admin","Index","Admin",null, new {@class="btn btn-primary", data_icon="gear"})
+@Html.ActionLink("Go To Member","Member","Home",null, new {@class="btn btn-primary", data_icon="gear"})

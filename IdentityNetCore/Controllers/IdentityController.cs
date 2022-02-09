@@ -9,11 +9,13 @@ namespace IdentityNetCore.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly ILogger<IdentityController> _logger;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public IdentityController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        public IdentityController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _roleManager = roleManager;
         }
 
         public async Task<IActionResult> Signup()
@@ -27,6 +29,23 @@ namespace IdentityNetCore.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (!(await _roleManager.RoleExistsAsync(model.Role)))
+                {
+                    var role = new IdentityRole()
+                    {
+                        Name = model.Role
+                    };
+
+                    var roleResult = await _roleManager.CreateAsync(role);
+                    if (!roleResult.Succeeded)
+                    {
+                        var errors = roleResult.Errors.Select(i => i.Description);
+                        if (errors != null)
+                            ModelState.AddModelError("addRole", string.Join("", errors));
+
+                        return View(model);
+                    }
+                }
 
                 if ((await _userManager.FindByEmailAsync(model.Email)) == null)
                 {
@@ -39,6 +58,8 @@ namespace IdentityNetCore.Controllers
 
                     if (result.Succeeded)
                     {
+                        await _userManager.AddToRoleAsync(user,model.Role);
+
                         return RedirectToAction("Signin");
                     }
 
@@ -62,8 +83,9 @@ namespace IdentityNetCore.Controllers
 
             return RedirectToAction("Signin");
         }
-        public IActionResult Signin()
+        public  IActionResult Signin()
         {
+        
             return View();
 
         }
@@ -77,9 +99,11 @@ namespace IdentityNetCore.Controllers
                 var identityUser = await _userManager.FindByEmailAsync(model.UserName);
                 if (identityUser == null) return new NotFoundResult();
 
-                var result = await _signInManager.PasswordSignInAsync(identityUser, model.Password, model.RememberMe, false);
+                var result = await _signInManager.PasswordSignInAsync(identityUser, model.Password, model.RememberMe,false);
+                var roles = await _userManager.GetRolesAsync(identityUser);
+
                 if (result.Succeeded)
-                    return RedirectToAction("/Home/Index");
+                    return RedirectToAction("Index","Home");
                 else ModelState.AddModelError("Login", "login failed");
 
             }

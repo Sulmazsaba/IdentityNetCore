@@ -1,6 +1,7 @@
 ﻿@model SignUpViewModel
 @{
     ViewData["Title"] = "Signup";
+    var roles = new List<string> { "admin", "member" };
 }
 <h1>Signup</h1>
 <form asp-controller="Identity" asp-action="Signup" method="post">
@@ -12,6 +13,11 @@
     <div class="form-group col-4">
         <label asp-for="Password"></label>
         <input asp-for="Password" class="form-control" />
+    </div>
+
+    <div class="form-group col-4">
+        <label asp-for=Role></label>
+        @Html.DropDownListFor(m=>m.Role,new SelectList(roles),null,null)
     </div>
 
     <div class=col-4>
