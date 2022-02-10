@@ -1,4 +1,5 @@
 ﻿using IdentityNetCore.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -118,11 +119,50 @@ namespace IdentityNetCore.Controllers
             return View();
         }
 
+        [Authorize]
         public async Task<IActionResult> Signout()
         {
             await _signInManager.SignOutAsync();
 
             return RedirectToAction("Index","Home");
+        }
+
+        [Authorize]
+        public async Task<IActionResult> MFASetup()
+        {
+            var model = new MFASetupViewModel();
+            var user = await _userManager.GetUserAsync(User);
+
+            //resetign two factor authenticating key
+            await _userManager.ResetAuthenticatorKeyAsync(user);
+
+            model.Token = await _userManager.GetAuthenticatorKeyAsync(user);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> MFASetup(MFASetupViewModel model)
+        {
+
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.GetUserAsync(User);
+
+               var succeeded = await _userManager.VerifyTwoFactorTokenAsync(user, _userManager.Options.Tokens.AuthenticatorTokenProvider, model.Token);
+                if (succeeded)
+                {
+                    await _userManager.SetTwoFactorEnabledAsync(user, true);
+
+                }
+                else
+                {
+                    ModelState.AddModelError("Verify", "Verification multiple factor authentication failed");
+                }
+            }
+
+            return View(model);
         }
     }
 }
