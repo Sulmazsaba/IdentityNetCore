@@ -1,7 +1,8 @@
 using IdentityNetCore.Data;
 using Microsoft.EntityFrameworkCore;
-using System.Configuration;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -15,7 +16,7 @@ builder.Services.Configure<IdentityOptions>(o =>
     o.Password.RequireNonAlphanumeric = false;
 
     o.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
-    o.Lockout.MaxFailedAccessAttempts = 3;  
+    o.Lockout.MaxFailedAccessAttempts = 3;
 
 });
 
@@ -24,6 +25,18 @@ builder.Services.ConfigureApplicationCookie(o =>
     o.LoginPath = "/Identity/Signin";
     o.AccessDeniedPath = "/Identity/AccessDenied";
     o.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+});
+
+builder.Services.AddAuthentication().AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+    {
+        ValidIssuer = "http://localhost",
+        ValidAudience = "http://localhost",
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("0123456789ASDFGH"))
+    };
 });
 
 builder.Services.AddAuthorization(option =>
